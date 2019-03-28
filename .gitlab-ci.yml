@@ -1,0 +1,73 @@
+# CI Lint tool
+# https://gitlab.teamhack.io/ci/lint
+---
+stages:
+  - pre-build
+  - lint
+  - deploy
+
+# サブモジュールを更新する場合にはこれを有効にする
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+
+cache:
+  # ブランチ毎にキャッシュする設定
+  key: "$CI_COMMIT_REF_NAME"
+#  untracked: true
+  paths:
+    - node_modules/
+
+pre-npm-build:
+  stage: pre-build
+  image: node:latest
+  script:
+    - npm install
+  artifacts:
+    untracked: true
+    paths:
+      - vendor/
+
+## filelint 改行コードを見たりする
+filelint:
+  stage: lint
+  image: toshiclick/gitlab-ci-ansible-centos
+  script:
+    - filelint .
+
+.ansiblelint:
+  stage: lint
+  image: toshiclick/gitlab-ci-ansible-centos
+  script:
+    - ansible-lint provision/base_setting.yml
+    - ansible-lint provision/service_start.yml
+
+.htmlhint:
+  stage: lint
+  image: node:latest
+  script:
+    - npm run htmlhint
+
+.stylelint:
+  stage: lint
+  image: node:latest
+  script:
+    - npm run stylelint
+
+# panic0.toshi.clickサーバへデプロイ
+.run_ansible_panic0:
+  stage: deploy
+  image: toshiclick/gitlab-ci-ansible-centos
+  script:
+    # リモートの最新に追従
+    - git submodule foreach git pull origin master
+    - echo -e "$TOSHI_KEY" > /builds/toshi_click/server/panic0/toshi.key
+    - chmod 600 /builds/toshi_click/server/panic0/toshi.key
+    - echo -e "$VAULT_PASS" > /builds/toshi_click/server/panic0/.ansible_vault_pass
+  # サーバへプレイブックを実行
+#    - ansible-playbook -l prd -i provision/inventory/default.yml provision/base_setting.yml --vault-pass /builds/toshi_click/server/panic0/.ansible_vault_pass
+#    - ansible-playbook -l prd -i provision/inventory/default.yml provision/service_start.yml --vault-pass /builds/toshi_click/server/panic0/.ansible_vault_pass
+#    - ansible-playbook -l prd -i provision/inventory/default.yml provision/prd_only.yml --vault-pass /builds/toshi_click/server/panic0/.ansible_vault_pass
+    - rm -f /builds/toshi_click/server/panic0/toshi.key
+    - rm -f /builds/cs-admin/gitlab_ci/.ansible_vault_pass
+  only:
+    - master

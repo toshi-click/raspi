@@ -2,7 +2,6 @@
 # https://gitlab.teamhack.io/ci/lint
 ---
 stages:
-  - pre-build
   - lint
   - deploy
 
@@ -17,16 +16,6 @@ cache:
   paths:
     - node_modules/
 
-pre-npm-build:
-  stage: pre-build
-  image: node:latest
-  script:
-    - npm install
-  artifacts:
-    untracked: true
-    paths:
-      - vendor/
-
 ## filelint 改行コードを見たりする
 filelint:
   stage: lint
@@ -40,18 +29,6 @@ filelint:
   script:
     - ansible-lint provision/base_setting.yml
     - ansible-lint provision/service_start.yml
-
-.htmlhint:
-  stage: lint
-  image: node:latest
-  script:
-    - npm run htmlhint
-
-.stylelint:
-  stage: lint
-  image: node:latest
-  script:
-    - npm run stylelint
 
 # panic0.toshi.clickサーバへデプロイ
 .run_ansible_panic0:

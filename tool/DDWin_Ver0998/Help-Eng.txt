@@ -1,0 +1,32 @@
+DD is the utility software which handles information in the removable disk.
+It is possible for this software to restore or back up all data in the disk.
+And, it is possible to save partition information.
+
+Usage:
+
+At first, it chooses a target disk and a target image file.
+
+1) When choosing a disk, it pushes " Choose disk " button and chooses a target disk.
+   The selectable disk is displayed after pushing " Choose disk " button when there is more than one disk.
+   Then clicks one of the wishes. And then pushes the " OK " button and chooses a target disk.
+
+
+2) Then, it chooses a target file.
+   ( Case 1 ) It pushes the button of " Choose file " and chooses a target file.
+   ( Case 2 ) It inputs the pathname and the filename of the target file directly and chooses a target file.
+
+
+- Backup
+   When pushing the " Backup " button, it creates an image file from the data which is in the target disk.
+
+- Verify
+   When pushing the " Verify " button, it verifies that a file image is equivalent to the target disk image.
+
+- Restoration
+   When pushing the " Restoration " button, it extracts the contents of the image file to the target disk.
+
+NOTE:
+   The disk which it is possible to use by this tool is limited to the removal disk.
+   Therefore, the disk except the removal disk can not be chosen by this tool.
+   Also, when accessing the disk that the capacity is equal to or more than 4 GByte, a warning message is displayed.
+

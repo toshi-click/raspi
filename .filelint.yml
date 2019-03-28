@@ -4,6 +4,7 @@ files:
   exclude:
   - '**/*.md'
   - 'node_modules/**/*'
+  - 'tool/**/*'
 #targets:
 #- patterns: ['**/*'] # `patterns` is an array of string, this pattern specify target files for this group
 #  rules:

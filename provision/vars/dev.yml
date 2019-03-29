@@ -1,0 +1,82 @@
+# 開発用固定の設定をここに書く
+# WEBサービス固有の設定値
+service:
+  # /appの中に置くプロジェクトフォルダ名を定義しておく
+  name: "raspi"
+  cron_file_path: "/app/raspi/provision/cron/vm/root"
+  docker:
+    compose_dir: "/app/raspi"
+
+host:
+  name: "vm.raspi.test"
+send_slack: "false"
+
+security:
+  sudo:
+    nopassword: "true"
+
+# sshdの設定
+sshd_setting:
+  passwordLogin: "yes"
+  PermitRootLogin: "no"
+  # permitUserが空の場合はユーザ制限行いません
+  permitUser: ""
+
+# 共通ユーザ
+# パスワード生成は「python -c 'import crypt; print crypt.crypt("toshitoshi", "$6$toshitoshi$")'」
+manage_user:
+  name: toshi
+  password: $6$toshitoshi$MqA8z76uhADTQxfblILM5ftmbMhBT0L6rlbjUOcAZMeu2cleG6/HuzUIMpsycBlPbMkltkF4c3HitFwbHjqer/
+  group: toshi
+  gid: 2000
+  uid: 2000
+  subgroups: sudo
+
+# パスワード生成は「python -c 'import crypt; print crypt.crypt("rootroot", "$6$rootroot$")'」
+root_user:
+  name: root
+  password: $6$rootroot$1a9X9k9wl.uH5llhn5LyS2VKjfCSImoxT9NXRnUX311X7LL45A9jNHGfRQ4T7KdtI4fleZkgaxDoz5UlBuSqV/
+
+# hosts.allowに設定される許可アドレス情報
+hosts:
+  # hosts.allowに設定される許可アドレス情報
+  accept_protocol_address:
+    # local
+    - {protocol: sshd, ip: 127.0.0.1}
+    - {protocol: snmpd, ip: 127.0.0.1}
+    # vagrant
+    - {protocol: sshd, ip: 10.0.2.2}
+    # local
+    - {protocol: sshd, ip: 192.168.0.0/16}
+    - {protocol: sshd, ip: 172.16.0.0/12}
+  # /etc/hostsに設定するホスト情報
+  etc_hosts_setting: ""
+  # 172.0.0.1を自ホスト名のルールは自動追加しますので不要です
+
+iptables:
+  accept_tcp_rules:
+    - {port: 80}
+    - {port: 443}
+    # Docker Remote API 開発だけ通すようにすること！！！
+    - {port: 2375}
+    - {port: 22, source: 127.0.0.1}
+    - {port: 22, source: 10.0.2.2}
+    - {port: 22, source: 172.16.0.0/12}
+    - {port: 22, source: 192.168.0.0/16}
+    - {port: 25, source: 127.0.0.1}
+    - {port: 25, source: 10.0.2.2}
+    - {port: 25, source: 172.16.0.0/12}
+    - {port: 25, source: 192.168.0.0/16}
+    - {port: 24224, source: 127.0.0.1}
+    - {port: 24224, source: 172.16.0.0/12}
+    - {port: 24224, source: 192.168.0.0/16}
+  accept_udp_rules:
+    - {port: 161, source: 127.0.0.1}
+  deny_tcp_rules: ""
+  deny_udp_rules: ""
+
+app_dir: "/app"
+bin_dir: "{{ app_dir }}/bin"
+docker_remote_api_enable: "yes"
+fluentd_user: root
+fluentd_group: root

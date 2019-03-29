@@ -1,0 +1,27 @@
+directory:
+  # WEBアプリケーションディレクトリ
+  app_dir: "/app"
+  # アプリケーションに必要なファイルの保管場所ルート
+  root_dir: /export
+  # 証明書
+  cert_dir: /export/certs
+  # 個別のwebアプリケーション格納場所のルートディレクトリ
+  www_dir: /app
+
+# サービスの共通設定
+ip6tables:
+  accept_tcp_rules:
+    - {port: 80}
+    - {port: 443}
+    - {port: 2375}
+    # localhost
+    - {port: 22, source: "::1"}
+  accept_udp_rules: ""
+  deny_tcp_rules: ""
+  deny_udp_rules: ""
+
+# SSHログイン時にメール送付しないグローバルIP
+# IPは正規表現でマッチ
+ssh_mail:
+  no_ip: "127.0.0.1 10.0.2.2 192.168. 172.16. 61.213.68.235 210.152.82.232 122.249.226."
+  send: "false"

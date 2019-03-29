@@ -1,0 +1,93 @@
+<source>
+  @type forward
+  port 24224
+  bind 0.0.0.0
+</source>
+
+# サーバーのログ収集系
+<source>
+    @type tail
+    path /var/log/messages
+    pos_file /var/tmp/syslog.pos
+    format syslog
+    tag system.syslogmessages
+</source>
+<source>
+    @type tail
+    path /var/log/secure
+    pos_file /var/tmp/secure_log.pos
+    format syslog
+    tag system.syslogsecure
+</source>
+<source>
+    @type tail
+    path /var/log/maillog
+    pos_file /tmp/maillog.pos
+    format syslog
+    tag system.syslogmail
+</source>
+
+<filter system.*>
+    @type ngrep
+    # system系の警告を検索する
+    <regexp>
+        key message
+        pattern (kernel|halt|logrotate: ALERT exited abnormally with)
+    </regexp>
+</filter>
+
+<match system.*>
+    @type slack
+    webhook_url "{{ slack.web_hook_url }}"
+    channel "#{{ slack.channel }}"
+    icon_emoji "#{{ slack.icon }}"
+    username LogGrep
+    flush_interval 60s
+</match>
+
+#<match **>
+#    @type copy
+#    <store>
+#        @type relabel
+#        @label @grep_exec
+#    </store>
+    # 全ログはcloudwatch_logsへ転送する
+#    <store>
+#        @type cloudwatch_logs
+#        log_group_name "{{ cloudwatch.log_group_name }}"
+#        log_stream_name "{{ cloudwatch.log_stream_name }}"
+#        auto_create_stream true
+#        include_time_key true
+#        localtime true
+#    </store>
+    # 解析用にElasticSearchにためる
+#    <store>
+#        @type elasticsearch
+#        host localhost
+#        buffer_type memory
+#        port 9200
+#        index_name fluentd
+#        type_name nginx
+#        logstash_format true
+#        logstash_prefix alllog
+#    </store>
+#</match>
+
+#<label @grep_exec>
+#    # 特定の文字列があった時にslack通知
+#    <filter **.*>
+#        @type ngrep
+#        <regexp>
+#            key message
+#            pattern (EMERGENCY|ALERT|CRITICAL|PHP Fatal error)
+#        </regexp>
+#    </filter>
+#    <match **.*>
+#        @type slack
+#        webhook_url "{{ slack.web_hook_url }}"
+#        channel "#{{ slack.channel }}"
+#        icon_emoji "#{{ slack.icon }}"
+#        username LogGrep
+#        flush_interval 60s
+#    </match>
+#</label>

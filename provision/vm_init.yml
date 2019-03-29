@@ -1,0 +1,13 @@
+# サービス固有の設定を実行
+- hosts: all
+  become: true
+  vars_files:
+    - ./vars/all.yml
+    - "./vars/{{ stage }}.yml"
+  roles:
+    - ../roles/all_package_update
+    - ../roles/auto_package_upgrade
+    - ../roles/manage_user_create
+    - ../roles/root_user_password
+    - ../roles/create_app_dir
+    - ../roles/create_bin_dir

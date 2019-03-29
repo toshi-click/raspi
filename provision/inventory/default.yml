@@ -1,0 +1,14 @@
+prd:
+  hosts: raspi.test
+  vars:
+    stage: prd
+    ansible_ssh_port: 22
+    ansible_ssh_user: toshi
+    ansible_ssh_private_key_file: /builds/toshi_click/server/raspi/toshi.key
+    ansible_python_interpreter: /usr/bin/python3
+
+dev_local:
+  hosts: localhost
+  vars:
+    stage: dev
+    ansible_connection: local

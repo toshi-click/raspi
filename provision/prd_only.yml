@@ -1,0 +1,35 @@
+---
+
+- hosts: all
+  become: true
+  vars_files:
+    - ./vars/all.yml
+    - ./vars/crypt_vars.yml
+    - "./vars/{{ stage }}.yml"
+  roles:
+    - ../roles/mackerel
+  tasks:
+    # サービス全体の共通設定読み込み
+    - name: includes Service ALL variable file.
+      include_vars: ./vars/all.yml
+
+    - name: includes Service ALL variable file.
+      include_vars: ./vars/crypt_vars.yml
+
+    # playbookをimport_playbookした際にvars_filesで読んだ変数は持ち越せないので読み直す
+    - name: includes stage variable file.
+      include_vars: "./vars/{{ stage }}.yml"
+
+    - name: "set mackerel conf"
+      template:
+        src: "mackerel-agent.conf"
+        dest: "/etc/mackerel-agent/mackerel-agent.conf"
+        owner: root
+        group: root
+        mode: 0644
+
+    - name: Start mackerel-agent
+      service:
+        name: mackerel-agent
+        state: restarted
+        enabled: yes

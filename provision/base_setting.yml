@@ -1,0 +1,63 @@
+# サービス固有の設定を実行
+- hosts: all
+  become: true
+  vars:
+    fluentd_slack:
+      channel: "general"
+      icon: ":hankey:"
+  vars_files:
+    - ./vars/all.yml
+    - ./vars/crypt_vars.yml
+    - "./vars/{{ stage }}.yml"
+  roles:
+    - ../roles/all_package_update
+    - ../roles/auto_package_upgrade
+    - ../roles/manage_user_create
+    - ../roles/root_user_password
+    - ../roles/create_app_dir
+    - ../roles/create_bin_dir
+    - ../roles/dev_tool_install
+    - ../roles/stdout_to_slack
+    - ../roles/timezone
+    - ../roles/locale
+    - ../roles/hosts
+    - ../roles/hostname
+    - ../roles/secure
+    - ../roles/sshd
+#    - ../roles/fluentd
+    - ../roles/docker
+    - ../roles/ntp
+    - ../roles/ansible
+    - ../roles/ufw
+  tasks:
+    # サービス全体の共通設定読み込み
+    - name: includes Service ALL variable file.
+      include_vars: ./vars/all.yml
+
+    - name: includes Service ALL variable file.
+      include_vars: ./vars/crypt_vars.yml
+
+    # playbookをimport_playbookした際にvars_filesで読んだ変数は持ち越せないので読み直す
+    - name: includes stage variable file.
+      include_vars: "./vars/{{ stage }}.yml"
+
+    # manageユーザーでdocker使えるようにする。セキュリティ落ちるので本番サーバーでは設定しないように。
+    - name: user join to docker group
+      user:
+        name: "{{ manage_user.name }}"
+        append: yes
+        groups: docker
+
+#    # fluentdの設定を上書きする
+#    - name: custom td-agent.conf set
+#      template:
+#        src: "td-agent.conf"
+#        dest: /etc/td-agent/td-agent.conf
+#        owner: root
+#        group: root
+#        mode: 0644
+#
+#    - name: restart fluentd
+#      service:
+#        name: td-agent
+#        state: restarted

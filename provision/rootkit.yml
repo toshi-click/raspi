@@ -1,0 +1,5 @@
+- hosts: all
+  become: !!str yes
+  tasks:
+    - name: "rkhunter --propupd"
+      command: rkhunter --propupd

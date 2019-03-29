@@ -1,0 +1,25 @@
+---
+
+- hosts: all
+  become: true
+  vars_files:
+    - ./vars/all.yml
+    - ./vars/crypt_vars.yml
+    - "./vars/{{ stage }}.yml"
+  roles:
+    # docker service コンテナ群起動
+#    - ../roles/docker_compose_service_start
+#    - ../roles/cron_register
+  tasks:
+    # サービス全体の共通設定読み込み
+    - name: includes Service ALL variable file.
+      include_vars: ./vars/all.yml
+
+    - name: includes Service ALL variable file.
+      include_vars: ./vars/crypt_vars.yml
+
+    # playbookをimport_playbookした際にvars_filesで読んだ変数は持ち越せないので読み直す
+    - name: includes stage variable file.
+      include_vars: "./vars/{{ stage }}.yml"
+
+- import_playbook: ./rootkit.yml

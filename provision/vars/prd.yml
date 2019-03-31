@@ -28,7 +28,7 @@ manage_user:
   name: toshi
   password: "{{ manage_user_pass }}"
   group: toshi
-  gid: 1002
+  gid: 1001
   uid: 1001
   subgroups: sudo
 

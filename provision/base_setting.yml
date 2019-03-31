@@ -11,7 +11,7 @@
     - "./vars/{{ stage }}.yml"
   roles:
     - ../roles/all_package_update
-    - ../roles/auto_package_upgrade
+#    - ../roles/auto_package_upgrade
     - ../roles/manage_user_create
     - ../roles/root_user_password
     - ../roles/create_app_dir

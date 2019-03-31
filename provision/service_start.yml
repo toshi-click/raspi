@@ -22,4 +22,4 @@
     - name: includes stage variable file.
       include_vars: "./vars/{{ stage }}.yml"
 
-- import_playbook: ./rootkit.yml
+#- import_playbook: ./rootkit.yml

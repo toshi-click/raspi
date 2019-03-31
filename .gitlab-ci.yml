@@ -43,7 +43,7 @@ run_ansible_prd:
     - chmod 644 /tmp/.ansible_vault_pass
   # サーバへプレイブックを実行
     - ansible-playbook -l prd -i provision/inventory/default.yml provision/base_setting.yml --vault-pass /tmp/.ansible_vault_pass
-    - ansible-playbook -l prd -i provision/inventory/default.yml provision/service_start.yml --vault-pass /tmp/.ansible_vault_pass
+#    - ansible-playbook -l prd -i provision/inventory/default.yml provision/service_start.yml --vault-pass /tmp/.ansible_vault_pass
     - ansible-playbook -l prd -i provision/inventory/default.yml provision/prd_only.yml --vault-pass /tmp/.ansible_vault_pass
   only:
     - master

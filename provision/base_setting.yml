@@ -26,7 +26,7 @@
     - ../roles/sshd
 #    - ../roles/fluentd
 #    - ../roles/docker
-    - ../roles/ntp
+#    - ../roles/ntp
     - ../roles/ansible
     - ../roles/ufw
   tasks:

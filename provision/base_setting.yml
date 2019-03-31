@@ -25,7 +25,7 @@
     - ../roles/secure
     - ../roles/sshd
 #    - ../roles/fluentd
-    - ../roles/docker
+#    - ../roles/docker
     - ../roles/ntp
     - ../roles/ansible
     - ../roles/ufw
@@ -41,9 +41,9 @@
     - name: includes stage variable file.
       include_vars: "./vars/{{ stage }}.yml"
 
-    # manageユーザーでdocker使えるようにする。セキュリティ落ちるので本番サーバーでは設定しないように。
-    - name: user join to docker group
-      user:
-        name: "{{ manage_user.name }}"
-        append: yes
-        groups: docker
+#    # manageユーザーでdocker使えるようにする。セキュリティ落ちるので本番サーバーでは設定しないように。
+#    - name: user join to docker group
+#      user:
+#        name: "{{ manage_user.name }}"
+#        append: yes
+#        groups: docker

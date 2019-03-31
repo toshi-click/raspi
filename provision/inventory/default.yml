@@ -1,5 +1,5 @@
 prd:
-  hosts: raspi.test
+  hosts: 172.16.77.101
   vars:
     stage: prd
     ansible_ssh_port: 22

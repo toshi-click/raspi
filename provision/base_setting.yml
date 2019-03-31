@@ -47,17 +47,3 @@
         name: "{{ manage_user.name }}"
         append: yes
         groups: docker
-
-#    # fluentdの設定を上書きする
-#    - name: custom td-agent.conf set
-#      template:
-#        src: "td-agent.conf"
-#        dest: /etc/td-agent/td-agent.conf
-#        owner: root
-#        group: root
-#        mode: 0644
-#
-#    - name: restart fluentd
-#      service:
-#        name: td-agent
-#        state: restarted

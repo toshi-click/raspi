@@ -17,7 +17,7 @@
     - ../roles/create_app_dir
     - ../roles/create_bin_dir
 #    - ../roles/dev_tool_install
-    - ../roles/stdout_to_slack
+#    - ../roles/stdout_to_slack
     - ../roles/timezone
     - ../roles/locale
     - ../roles/hosts

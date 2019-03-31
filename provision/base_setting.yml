@@ -19,7 +19,7 @@
 #    - ../roles/dev_tool_install
 #    - ../roles/stdout_to_slack
     - ../roles/timezone
-    - ../roles/locale
+#    - ../roles/locale
     - ../roles/hosts
     - ../roles/hostname
     - ../roles/secure

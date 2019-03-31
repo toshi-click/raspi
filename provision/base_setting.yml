@@ -27,8 +27,8 @@
 #    - ../roles/fluentd
 #    - ../roles/docker
 #    - ../roles/ntp
-    - ../roles/ansible
-    - ../roles/ufw
+#    - ../roles/ansible
+#    - ../roles/ufw
   tasks:
     # サービス全体の共通設定読み込み
     - name: includes Service ALL variable file.

@@ -33,7 +33,7 @@
         name: mackerel-agent
         state: restarted
         enabled: yes
-        
+
     # fluentdの設定を上書きする
     - name: custom td-agent.conf set
       template:

@@ -1,3 +1,9 @@
+<system>
+#  log_level [info|warn|error|fatal|debug|trace]
+  log_level error
+#  without_source
+</system>
+
 <source>
   @type forward
   port 24224
@@ -7,87 +13,97 @@
 # サーバーのログ収集系
 <source>
     @type tail
-    path /var/log/messages
+    path /var/log/syslog
     pos_file /var/tmp/syslog.pos
-    format syslog
+    format /^(?<log>.*)$/
+    keep_time_key true
     tag system.syslogmessages
 </source>
 <source>
     @type tail
     path /var/log/secure
     pos_file /var/tmp/secure_log.pos
-    format syslog
+    format /^(?<log>.*)$/
+    keep_time_key true
     tag system.syslogsecure
 </source>
 <source>
     @type tail
-    path /var/log/maillog
-    pos_file /tmp/maillog.pos
-    format syslog
+    path /var/log/mail.log
+    pos_file /var/tmp/maillog.pos
+    format /^(?<log>.*)$/
+    keep_time_key true
     tag system.syslogmail
 </source>
+<source>
+    @type tail
+    path /var/log/rkhunter.log
+    pos_file /var/tmp/rkhunter.pos
+    format /^(?<log>.*)$/
+    keep_time_key true
+    tag system.syslogrkhunter
+</source>
 
-<filter system.*>
-    @type ngrep
-    # system系の警告を検索する
-    <regexp>
-        key message
-        pattern (kernel|halt|logrotate: ALERT exited abnormally with)
-    </regexp>
+#### Filter
+### Add MyHostname
+<filter **.*>
+  @type record_transformer
+  <record>
+    hostname ${hostname}
+    tag ${tag}
+  </record>
 </filter>
 
-<match system.*>
-    @type slack
-    webhook_url "{{ slack.web_hook_url }}"
-    channel "#{{ slack.channel }}"
-    icon_emoji "#{{ slack.icon }}"
-    username LogGrep
-    flush_interval 60s
+# ホストのシステムログは直slackへの通知と集積サーバーへ転送する
+<match **.*>
+    @type copy
+    <store>
+        @type forward
+        transport tls
+        tls_cert_path /etc/td-agent/certs/fluentd.crt
+        tls_allow_self_signed_cert true
+        tls_verify_hostname false
+      #  compress gzip
+        <server>
+          host {{ fluentd.send_server.name }}
+          port {{ fluentd.send_server.port }}
+        </server>
+        <security>
+          self_hostname {{ host.name }}
+          shared_key {{ fluentd.F8XWPh33woGgaPpSjKhvAhciGF2Mrt9zWHy6szDuonBoTb2eeSVUpq3zqq63va2a }}
+        </security>
+        <buffer>
+          @type file
+          path /var/log/td-agent/buffer/sec_forward
+        </buffer>
+        flush_interval 60s
+    </store>
+    <store>
+        type relabel
+        @label @rewrite
+    </store>
 </match>
-
-#<match **>
-#    @type copy
-#    <store>
-#        @type relabel
-#        @label @grep_exec
-#    </store>
-    # 全ログはcloudwatch_logsへ転送する
-#    <store>
-#        @type cloudwatch_logs
-#        log_group_name "{{ cloudwatch.log_group_name }}"
-#        log_stream_name "{{ cloudwatch.log_stream_name }}"
-#        auto_create_stream true
-#        include_time_key true
-#        localtime true
-#    </store>
-    # 解析用にElasticSearchにためる
-#    <store>
-#        @type elasticsearch
-#        host localhost
-#        buffer_type memory
-#        port 9200
-#        index_name fluentd
-#        type_name nginx
-#        logstash_format true
-#        logstash_prefix alllog
-#    </store>
-#</match>
-
-#<label @grep_exec>
-#    # 特定の文字列があった時にslack通知
-#    <filter **.*>
-#        @type ngrep
-#        <regexp>
-#            key message
-#            pattern (EMERGENCY|ALERT|CRITICAL|PHP Fatal error)
-#        </regexp>
-#    </filter>
-#    <match **.*>
-#        @type slack
-#        webhook_url "{{ slack.web_hook_url }}"
-#        channel "#{{ slack.channel }}"
-#        icon_emoji "#{{ slack.icon }}"
-#        username LogGrep
-#        flush_interval 60s
-#    </match>
-#</label>
+<label @rewrite>
+    # システムのログで該当メッセージがあった場合に発報
+    <filter system.*>
+        @type ngrep
+        <regexp>
+            key log
+            pattern (kernel|panic|halt|logrotate)
+        </regexp>
+        <exclude>
+            key log
+            pattern (IPv6: ADDRCONF|br-|ansible-file: Invoked|device veth|ansible-stat: Invoked|: XFS .dm-|: renamed from|docker[0-9]+: port [1-9]*\(veth[a-zA-Z0-9]*\))
+        </exclude>
+    </filter>
+    <match system.*>
+        @type slack
+        webhook_url "{{ slack.web_hook_url }}"
+        channel "#{{ slack.channel }}"
+        icon_emoji "#{{ slack.icon }}"
+        username "{{ host.name }}_SystemLogGrep"
+        message %s %s %s
+        message_keys tag,message,log
+        flush_interval 180s
+    </match>
+</label>
